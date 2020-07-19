@@ -1,0 +1,36 @@
+{
+  "name": "metriffic-",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-cache-inmemory": "^1.6.5",
+    "apollo-client": "^2.6.8",
+    "apollo-link-ws": "^1.0.20",
+    "colors": "^1.4.0",
+    "crypto": "^1.0.1",
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.4",
+    "jsonwebtoken": "^8.5.1",
+    "ssh2": "^0.8.9",
+    "subscriptions-transport-ws": "^0.9.16",
+    "ws": "^7.3.0"
+  },
+  "scripts": {
+    "start": "nodemon --exec babel-node application.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
+    "nodemon": "^2.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://metriffic-vazk@bitbucket.org/metriffic-team/metriffic-workspaces.git"
+  },
+  "author": "",
+  "homepage": "https://bitbucket.org/metriffic-team/metriffic-workspaces#readme",
+  "description": ""
+}
