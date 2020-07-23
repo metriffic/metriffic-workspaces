@@ -1,17 +1,15 @@
 const path = require('path');
 
 module.exports = {
-    GQL_HOSTNAME: 'localhost',
+    GQL_HOSTNAME: process.env['METRIFFIC_GQL_HOSTNAME'],
     GQL_PORT: 4000,
-
     GQL_ENDPOINT: 'workspace_manager',
 
-    USERSPACE_DIR_ROOT : '/home/metriffic/userspace/',
-    USERSPACE_HOST : '192.168.86.199',
+    USERSPACE_ROOT: process.env['METRIFFIC_USERSPACE_ROOT'],
 
-    WORKSPACE_MANAGER_PRIVATE_KEY_FILE: path.join('keys', 'workspace_manager_private.key'),
-    WORKSPACE_MANAGER_ENDPOINT: 'workspace_manager',
+    WORKSPACE_MANAGER_PRIVATE_KEY_FILE: process.env['METRIFFIC_WORKSPACE_MANAGER_PRIVATE_KEY_FILE'],
 
-    RSYNC_SERVER_PORT : 2222
+    RSYNC_SERVER_HOST_KEY_FILE: process.env['METRIFFIC_RSYNC_SERVER_HOST_KEY_FILE'],
+    RSYNC_SERVER_PORT : 7000
 }
   

@@ -25,7 +25,7 @@ class WorkspaceManager
     {
         // TBD: can the directory name exist?
         // it shouldn't since the username is unique, but account recreation may potentially cause this...
-        const user_folder = path.join(config.USERSPACE_DIR_ROOT + data.username);
+        const user_folder = path.join(config.USERSPACE_ROOT + data.username);
         fs.mkdirSync(user_folder, { recursive: false });
         fs.chmodSync(user_folder, '0777');
        
@@ -37,7 +37,7 @@ class WorkspaceManager
         // note: username/password may be undefined
         rsync_manager.start_session(data.username, 
                                     data.password,
-                                    path.join(config.USERSPACE_DIR_ROOT + data.username) + path.sep);
+                                    path.join(config.USERSPACE_ROOT + data.username) + path.sep);
     }
 
     async subscribe_to_gql_updates()
