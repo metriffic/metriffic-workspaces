@@ -17,7 +17,7 @@ class RSyncSessionManager
 
         this.server = new ssh2.Server({
             hostKeys: [{
-                key: fs.readFileSync('host.key'),
+                key: fs.readFileSync(config.RSYNC_SERVER_HOST_KEY_FILE),
                 passphrase: 'blabla',
             }],
           }, function(client) {
