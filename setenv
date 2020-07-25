@@ -1,4 +1,4 @@
 export METRIFFIC_WORKSPACE_MANAGER_PRIVATE_KEY_FILE=/home/vazgen/workspace/METRIFFIC/metriffic-workspaces/keys/workspace_manager_private.key 
 export METRIFFIC_USERSPACE_ROOT=/home/metriffic/userspace/
-export METRIFFIC_GQL_HOSTNAME=localhost
+export METRIFFIC_GQL_ADDRESS=ws://localhost:4000/graphql
 export METRIFFIC_RSYNC_SERVER_HOST_KEY_FILE=/home/vazgen/workspace/METRIFFIC/metriffic-workspaces/keys/rsync_host_private.key
