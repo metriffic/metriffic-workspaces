@@ -9,6 +9,7 @@
     "apollo-link-ws": "^1.0.20",
     "colors": "^1.4.0",
     "crypto": "^1.0.1",
+    "env-var": "^6.3.0",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.4",
     "jsonwebtoken": "^8.5.1",

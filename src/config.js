@@ -1,14 +1,15 @@
 const path = require('path');
+const env = require('env-var');
 
 module.exports = {
-    GQL_ADDRESS: process.env['METRIFFIC_GQL_ADDRESS'],
+    GQL_ADDRESS: env.get('METRIFFIC_GQL_ADDRESS').required().asString(),
     GQL_ENDPOINT: 'workspace_manager',
 
-    USERSPACE_ROOT: process.env['METRIFFIC_USERSPACE_ROOT'],
+    USERSPACE_ROOT: env.get('METRIFFIC_USERSPACE_ROOT').required().asString(),
 
-    WORKSPACE_MANAGER_PRIVATE_KEY_FILE: process.env['METRIFFIC_WORKSPACE_MANAGER_PRIVATE_KEY_FILE'],
+    WORKSPACE_MANAGER_PRIVATE_KEY_FILE: env.get('METRIFFIC_WORKSPACE_MANAGER_PRIVATE_KEY_FILE').required().asString(),
 
-    RSYNC_SERVER_HOST_KEY_FILE: process.env['METRIFFIC_RSYNC_SERVER_HOST_KEY_FILE'],
+    RSYNC_SERVER_HOST_KEY_FILE: env.get('METRIFFIC_RSYNC_SERVER_HOST_KEY_FILE').required().asString(),
     RSYNC_SERVER_PORT : 7000
 }
   
