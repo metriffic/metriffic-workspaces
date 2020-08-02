@@ -22,12 +22,11 @@ class RSyncSessionManager
             }],
           }, function(client) {
             console.log('[RSM] client connected.');
+            var auth_client = undefined;
            
             client.on('authentication', function(ctx) {
 
-                console.log('AUTH', ctx.username, ctx.password)
-                client.username = ctx.username;
-
+                const username = ctx.username;
                 const record = rsync_manager.active_users.get(username);
                 if(record == undefined) {
                     return ctx.reject();
@@ -40,22 +39,22 @@ class RSyncSessionManager
                     if (password != rpassword) {
                         return ctx.reject();
                     }
-                    // this is redundant since the usernames should match, but let's reset anyway
-                    client.username = record.username;
-                    client.workspace = record.workspace;
-                    ctx.accept();
-                    break;
+                    auth_client = { 
+                        username: username, 
+                        workspace: record.workspace 
+                    };
+                    return ctx.accept();
                 default:
                     return ctx.reject();
                 }  
 
             }).on('error', function(err) {
                 console.log(ERROR(`[RSM] ${err}`));
-                if(client && client.username) {
-                    rsync_manager.active_users.delete(client.username);
+                if(auth_client) {
+                    rsync_manager.active_users.delete(auth_client.username);
                 }
             }).on('ready', function() {
-                console.log(`[RSM] client ${LOG_USER(client.username)} authenticated`);
+                console.log(`[RSM] client ${LOG_USER(auth_client.username)} authenticated`);
             
                 client.on('session', function(accept, reject) {
                     const session = accept();
@@ -66,7 +65,7 @@ class RSyncSessionManager
                         var cmdsplit = cmd.split(' ');
                         cmdsplit = cmdsplit.slice(1,cmdsplit.length-1);
                         //cmdsplit.pop();
-                        cmdsplit.push(client.workspace);
+                        cmdsplit.push(auth_client.workspace);
                         const child = spawn('/usr/local/bin/rsync', cmdsplit);
 
                         child.stdout.pipe(stream);
@@ -86,12 +85,12 @@ class RSyncSessionManager
                 })
 
             }).on('end', function() {
-                if(client && client.username) {
-                    console.log(`[RSM] client ${LOG_USER(client.username)} disconnected`);
-                    rsync_manager.active_users.delete(client.username);
+                if(auth_client) {
+                    console.log(`[RSM] client ${LOG_USER(auth_client.username)} disconnected`);
+                    rsync_manager.active_users.delete(auh_client.username);
                 }
             });
-        }).listen(config.RSYNC_SERVER_PORT, '127.0.0.1', function() {
+        }).listen(config.RSYNC_SERVER_PORT, function() {
             console.log('[RSM] listening on port ' + this.address().port);
         });
     }
