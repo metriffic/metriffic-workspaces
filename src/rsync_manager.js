@@ -87,7 +87,7 @@ class RSyncSessionManager
             }).on('end', function() {
                 if(auth_client) {
                     console.log(`[RSM] client ${LOG_USER(auth_client.username)} disconnected`);
-                    rsync_manager.active_users.delete(auh_client.username);
+                    rsync_manager.active_users.delete(auth_client.username);
                 }
             });
         }).listen(config.RSYNC_SERVER_PORT, function() {
