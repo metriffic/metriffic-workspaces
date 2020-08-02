@@ -26,7 +26,7 @@ class RSyncSessionManager
             client.on('authentication', function(ctx) {
 
                 console.log('AUTH', ctx.username, ctx.password)
-                const username = ctx.username;
+                client.username = ctx.username;
 
                 const record = rsync_manager.active_users.get(username);
                 if(record == undefined) {
@@ -40,6 +40,7 @@ class RSyncSessionManager
                     if (password != rpassword) {
                         return ctx.reject();
                     }
+                    // this is redundant since the usernames should match, but let's reset anyway
                     client.username = record.username;
                     client.workspace = record.workspace;
                     ctx.accept();
@@ -48,12 +49,16 @@ class RSyncSessionManager
                     return ctx.reject();
                 }  
 
+            }).on('error', function(err) {
+                console.log(ERROR(`[RSM] ${err}`));
+                if(client && client.username) {
+                    rsync_manager.active_users.delete(client.username);
+                }
             }).on('ready', function() {
                 console.log(`[RSM] client ${LOG_USER(client.username)} authenticated`);
-
             
                 client.on('session', function(accept, reject) {
-                    var session = accept();
+                    const session = accept();
 
                     session.on('exec', function(accept, reject, info) {           
                         const cmd = inspect(info.command); 
@@ -81,8 +86,10 @@ class RSyncSessionManager
                 })
 
             }).on('end', function() {
-                  console.log(`[RSM] client ${LOG_USER(client.username)} disconnected`);
-                  rsync_manager.active_users.delete(client.username);
+                if(client && client.username) {
+                    console.log(`[RSM] client ${LOG_USER(client.username)} disconnected`);
+                    rsync_manager.active_users.delete(client.username);
+                }
             });
         }).listen(config.RSYNC_SERVER_PORT, '127.0.0.1', function() {
             console.log('[RSM] listening on port ' + this.address().port);
