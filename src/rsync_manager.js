@@ -20,12 +20,19 @@ class RSyncSessionManager
                 key: fs.readFileSync(config.RSYNC_SERVER_HOST_KEY_FILE),
                 passphrase: 'blabla',
             }],
-          }, function(client) {
+            algorithms: {
+                serverHostKey: [
+                  'rsa-sha2-512',
+                  'rsa-sha2-256',
+                ]
+            }
+          });
+
+        this.server.on('connection', (client) => {
             console.log('[RSM] client connected.');
             var auth_client = undefined;
            
             client.on('authentication', function(ctx) {
-
                 const username = ctx.username;
                 const record = rsync_manager.active_users.get(username);
                 if(record == undefined) {
@@ -66,7 +73,7 @@ class RSyncSessionManager
                         cmdsplit = cmdsplit.slice(1,cmdsplit.length-1);
                         //cmdsplit.pop();
                         cmdsplit.push(auth_client.workspace);
-                        const child = spawn('/usr/local/bin/rsync', cmdsplit);
+                        const child = spawn('/usr/bin/rsync', cmdsplit);
 
                         child.stdout.pipe(stream);
                         stream.pipe(child.stdin);
@@ -90,7 +97,9 @@ class RSyncSessionManager
                     rsync_manager.active_users.delete(auth_client.username);
                 }
             });
-        }).listen(config.RSYNC_SERVER_PORT, function() {
+        });
+
+	this.server.listen(config.RSYNC_SERVER_PORT, function() {
             console.log('[RSM] listening on port ' + this.address().port);
         });
     }
