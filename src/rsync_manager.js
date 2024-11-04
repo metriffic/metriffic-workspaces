@@ -11,8 +11,8 @@ class RSyncSessionManager
 {
     constructor() 
     {
+
         this.active_users = new Map();
-        
         const rsync_manager = this;
 
         this.server = new ssh2.Server({
@@ -20,30 +20,37 @@ class RSyncSessionManager
                 key: fs.readFileSync(config.RSYNC_SERVER_HOST_KEY_FILE),
                 passphrase: 'blabla',
             }],
-            algorithms: {
-                serverHostKey: [
-                  'rsa-sha2-512',
-                  'rsa-sha2-256',
-                ]
-            }
           });
 
         this.server.on('connection', (client) => {
             console.log('[RSM] client connected.');
             var auth_client = undefined;
+
+            const check_value = (input, allowed) => {
+                const auto_reject = (input.length !== allowed.length);
+                if (auto_reject) {
+                      // Prevent leaking length information by always making a comparison with the
+                      // same input when lengths don't match what we expect ...
+                      allowed = input;
+                }
+                const is_match = crypto.timingSafeEqual(input, allowed);
+                return (!auto_reject && is_match);
+            }
            
-            client.on('authentication', function(ctx) {
+            client.on('authentication', (ctx) => {
                 const username = ctx.username;
                 const record = rsync_manager.active_users.get(username);
+                console.log(`[RSM] x1 ${ctx.username}, ${ctx.method},  ${record}`)
                 if(record == undefined) {
                     return ctx.reject();
                 }
                 
                 switch (ctx.method) {
-                case 'password':
-                    const rpassword = record.password;
-                    const password = ctx.password;
-                    if (password != rpassword) {
+                case 'publickey':
+                    const allowed_pub_key = ssh2.utils.parseKey(record.public_key);
+                    if (ctx.key.algo !== allowed_pub_key.type
+                        || !check_value(ctx.key.data, allowed_pub_key.getPublicSSH())
+                        || (ctx.signature && allowed_pub_key.verify(ctx.blob, ctx.signature, ctx.hashAlgo) !== true)) {
                         return ctx.reject();
                     }
                     auth_client = { 
@@ -103,11 +110,11 @@ class RSyncSessionManager
             console.log('[RSM] listening on port ' + this.address().port);
         });
     }
-
-    start_session(username, password, workspace)
+    
+    start_session(username, public_key, workspace)
     {
         this.active_users.set(username, {
-                    password: password, 
+                    public_key: public_key, 
                     workspace: workspace
                 });   
     }

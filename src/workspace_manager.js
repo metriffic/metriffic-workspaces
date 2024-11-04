@@ -36,7 +36,7 @@ class WorkspaceManager
     {
         // note: username/password may be undefined
         rsync_manager.start_session(data.username, 
-                                    data.password,
+                                    data.public_key,
                                     path.join(config.USERSPACE_ROOT + data.username) + path.sep);
     }
 
@@ -70,7 +70,7 @@ class WorkspaceManager
         // subscribe to user updates
         const subscribe_rsync_requests = gql`
         subscription subsRSync { 
-            subsRSync { username password }
+            subsRSync { username public_key }
         }`;
 
         metriffic_client.gql.subscribe({
