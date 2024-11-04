@@ -40,7 +40,6 @@ class RSyncSessionManager
             client.on('authentication', (ctx) => {
                 const username = ctx.username;
                 const record = rsync_manager.active_users.get(username);
-                console.log(`[RSM] x1 ${ctx.username}, ${ctx.method},  ${record}`)
                 if(record == undefined) {
                     return ctx.reject();
                 }
