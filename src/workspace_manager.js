@@ -9,8 +9,8 @@ const { LOG_USER, ERROR } = require('./logging')
 const { rsync_manager } = require('./rsync_manager');
 
 class WorkspaceManager
-{       
-    constructor() 
+{
+    constructor()
     {
         this.start();
     }
@@ -28,14 +28,14 @@ class WorkspaceManager
         const user_folder = path.join(config.USERSPACE_ROOT + data.username);
         fs.mkdirSync(user_folder, { recursive: false });
         fs.chmodSync(user_folder, '0777');
-       
+
         console.log(`[WM] created workspace for user ${LOG_USER(data.username)}`);
     }
 
     on_rsync_link_requested(data)
     {
         // note: username/password may be undefined
-        rsync_manager.start_session(data.username, 
+        rsync_manager.start_session(data.username,
                                     data.public_key,
                                     path.join(config.USERSPACE_ROOT + data.username) + path.sep);
     }
@@ -46,7 +46,7 @@ class WorkspaceManager
 
         // subscribe to user updates
         const subscribe_users = gql`
-        subscription subsUser { 
+        subscription subsUser {
             subsUser { mutation data {id, username }}
         }`;
 
@@ -59,7 +59,7 @@ class WorkspaceManager
                     workspace_manager.on_user_added(update.data);
                 } else
                 if(update.mutation === "DELETED") {
-                    //TBD: delete a user 
+                    //TBD: delete a user
                 }
             },
             error(err) {
@@ -69,7 +69,7 @@ class WorkspaceManager
 
         // subscribe to user updates
         const subscribe_rsync_requests = gql`
-        subscription subsRSync { 
+        subscription subsRSync {
             subsRSync { username public_key }
         }`;
 
@@ -84,10 +84,28 @@ class WorkspaceManager
                 console.log(ERROR(`[WM] error: failed to subscribe: ${err}`));
             }
         });
+
+        // subscribe to user updates
+        const subscribe_heartbeat = gql`
+        subscription hearBeat {
+            subsHeartBeat { beat_num }
+        }`;
+
+        metriffic_client.gql.subscribe({
+            query: subscribe_heartbeat,
+        }).subscribe({
+            next(ret) {
+                const update = ret.data.subsHeartBeat;
+                console.log(`[WM] heartbeat#${update['beat_num']} received at ${new Date()}`);
+            },
+            error(err) {
+                console.log(ERROR(`[WM] error: failed to subscribe: ${err}`));
+            }
+        });
     }
 
 };
 
-   
+
 
 module.exports.WorkspaceManager = WorkspaceManager;
